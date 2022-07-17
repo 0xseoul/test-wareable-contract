@@ -31,4 +31,19 @@ interface IWearable721 {
 
     /// @notice event emitted when a user has minted a ERC1155 nft
     event MintedCloths(address owner, uint256 tokenId);
+
+    function getTokenInfo(uint256 tokenId)
+        external
+        view
+        returns (TokenInfo memory);
+
+    function burnCloths(uint256 tokenId, uint256 erc1155Id)
+        external
+        payable
+        returns (bool success);
+
+    function mintCloths(uint256 tokenId, uint256 erc1155Id)
+        external
+        payable
+        returns (bool success);
 }
