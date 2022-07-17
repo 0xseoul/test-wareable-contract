@@ -20,12 +20,6 @@ interface IWearable721 {
         uint256 bottom;
     }
 
-    /// @notice event emitted when a user has staked a nft
-    event Staked(address owner, uint256 tokenId);
-
-    /// @notice event emitted when a user has unstaked a nft
-    event Unstaked(address owner, uint256 tokenId);
-
     /// @notice event emitted when a user has burned a ERC1155 nft
     event BurnedCloths(address owner, uint256 tokenId);
 
