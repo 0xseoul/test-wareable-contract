@@ -26,7 +26,7 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
   @author web3.0 stevejobs
   @dev ERC721A contract for minting NFT tokens
 */
-contract OXSEOUL is ERC721A, Ownable, ReentrancyGuard {
+contract OXLA is ERC721A, Ownable, ReentrancyGuard {
     using Strings for uint256;
     using SafeMath for uint256;
     bytes32 public root;

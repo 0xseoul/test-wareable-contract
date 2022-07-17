@@ -1,0 +1,12 @@
+{
+  "description": "Friendly OpenSea Creature that enjoys long swims in the ocean.",
+  "external_url": "https://openseacreatures.io/3",
+  "image": "ipfs://QmeeRn63DpWydv8Wx44Pj1gq4p2jeAYtL2yep1WMnswcF4",
+  "name": "ERC1155-item-1",
+  "attributes": [
+    {
+      "trait_type": "Base",
+      "value": "Starfish"
+    }
+  ]
+}
