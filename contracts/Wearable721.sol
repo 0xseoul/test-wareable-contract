@@ -11,7 +11,7 @@ $$    $$/ /$$/ $$  |/     $$/ $$       |$$    $$/ $$    $$/ $$ |
                                                                                                                                                                                                                                   
  */
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.15;
 
 import "erc721a/contracts/ERC721A.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -19,6 +19,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "./interfaces/IWearable721.sol";
 
 //
 /**
@@ -26,9 +27,13 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
   @author web3.0 stevejobs
   @dev ERC721A contract for minting NFT tokens
 */
-contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
+contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard, IWEARABLE721 {
     using Strings for uint256;
     using SafeMath for uint256;
+
+    uint256 constant TOP = 0;
+    uint256 constant BOTTOM = 1;
+
     bytes32 public root;
 
     uint256 public maxMintAmountPerTx = 3;
@@ -46,6 +51,7 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     bool public presaleM = false;
 
     mapping(address => uint256) public _presaleClaimed;
+    mapping(uint256 => TokenInfo) public _tokenInfo;
 
     uint256 _price = 10**16; // 0.01 ETH
 
@@ -89,6 +95,12 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
         _;
     }
 
+    // 이거 바꾸기
+    modifier onlyItemHandler() {
+        require(msg.sender == owner(), "Not allowed origin");
+        _;
+    }
+
     function toggleReveal() public onlyOwner {
         revealed = !revealed;
     }
@@ -103,6 +115,50 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
 
     function togglePublicSale() public onlyOwner {
         publicM = !publicM;
+    }
+
+    function getTokenInfo(uint256 _tokenId)
+        external
+        view
+        returns (TokenInfo memory)
+    {
+        return _tokenInfo[_tokenId];
+    }
+
+    function burnCloths(uint256 _type, uint256 tokenId)
+        external
+        onlyItemHandler
+        returns (bool success)
+    {
+        require(_type == TOP || _type == BOTTOM, "Invalid type");
+        bool _success = false;
+        if (_type == TOP) {
+            _tokenInfo[tokenId].top = 0;
+            _success = true;
+        }
+        if (_type == BOTTOM) {
+            _tokenInfo[tokenId].bottom = 0;
+            _success = true;
+        }
+        return _success;
+    }
+
+    function mintCloths(
+        uint256 _type,
+        uint256 tokenId,
+        uint256 erc1155Id
+    ) external onlyItemHandler returns (bool success) {
+        require(_type == TOP || _type == BOTTOM, "Invalid type");
+        bool _success = false;
+        if (_type == TOP) {
+            _tokenInfo[tokenId].top = erc1155Id;
+            _success = true;
+        }
+        if (_type == BOTTOM) {
+            _tokenInfo[tokenId].bottom = erc1155Id;
+            _success = true;
+        }
+        return _success;
     }
 
     function setMerkleRoot(bytes32 merkleroot) public onlyOwner {
