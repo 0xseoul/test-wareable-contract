@@ -23,7 +23,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 // https://gateway.pinata.cloud/ipfs/QmYpqAu6DBvuiWM3M8Tz5aqjA94HQaxw52qKhX6XmHzxMp/metadata-item1.json
 // https://gateway.pinata.cloud/ipfs/QmYpqAu6DBvuiWM3M8Tz5aqjA94HQaxw52qKhX6XmHzxMp/metadata-item2.json
 
-contract OXLAWAREABLE is ERC1155Supply, Ownable, ReentrancyGuard {
+contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
     string public name;
     string public symbol;
 
