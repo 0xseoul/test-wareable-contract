@@ -34,12 +34,6 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
     // uint256 public constant SHIELD = 4;
     mapping(uint256 => string) public tokenURI;
 
-    // ;(msg.sender, msg.sender)
-    // modifier onlyTokenOwner(uint256 _tokenId) {
-    // require(balanceOf(msg.sender, _tokenId));
-    // _;
-    // }
-
     constructor() ERC1155(" ") {
         // constructor(string memory uri_) ERC1155(uri_) {
         // "https://game.example/api/item/{id}.json"
@@ -106,8 +100,4 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         }
         _burnBatch(msg.sender, _ids, _amounts);
     }
-
-    // function totalSupply() public view returns (uint256) {
-    //     return totalSupply(GOLD);
-    // }
 }
