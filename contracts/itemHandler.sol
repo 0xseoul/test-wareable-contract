@@ -47,7 +47,7 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
     }
 
     modifier onlyAccounts() {
-        require(msg.sender == tx.origin, "Not allowed origin");
+        require(msg.sender == tx.origin, "0xItemHandler: Not allowed origin");
         _;
     }
 
@@ -60,7 +60,6 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
     }
 
     function dressUp(
-        address _owner,
         uint256 _erc721Id,
         uint256 _erc1155Id,
         uint256 _type
@@ -76,14 +75,13 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
             "0xseoul: you are not the owner of this erc1155 token"
         );
 
-        wearable1155.burnERC1155(_erc1155Id, _owner);
+        wearable1155.burnERC1155(_erc1155Id, msg.sender);
         wearable721.dressUp(_type, _erc721Id, _erc1155Id);
         // emit DressedUp(msg.sender, _erc721Id, _erc1155Id);
         return true;
     }
 
     function dressDown(
-        address _owner,
         uint256 _erc721Id,
         uint256 _erc1155Id,
         uint256 _type
@@ -96,7 +94,7 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
         );
 
         wearable721.dressDown(_type, _erc721Id);
-        wearable1155.mintERC1155(_erc1155Id, _owner);
+        wearable1155.mintERC1155(_erc1155Id, msg.sender);
         // emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
         return true;
     }

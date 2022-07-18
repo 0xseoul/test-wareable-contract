@@ -22,14 +22,12 @@ interface IItemHandler {
     // event MintedCloths(address owner, uint256 tokenId);
 
     function dressUp(
-        address _owner,
         uint256 _erc721Id,
         uint256 _erc1155Id,
         uint256 _type
     ) external returns (bool success);
 
     function dressDown(
-        address _owner,
         uint256 _erc721Id,
         uint256 _erc1155Id,
         uint256 _type

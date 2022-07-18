@@ -70,7 +70,7 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
                 root,
                 keccak256(abi.encodePacked(msg.sender))
             ) == true,
-            "Not allowed origin"
+            "0xWEARABLE721: merkle proof is not valid"
         );
         _;
     }
@@ -78,22 +78,25 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     modifier mintCompliance(uint256 _mintAmount) {
         require(
             _mintAmount > 0 && _mintAmount <= maxMintAmountPerTx,
-            "Invalid mint amount!"
+            "0xWEARABLE721: Invalid mint amount!"
         );
         require(
             totalSupply() + _mintAmount <= maxSupply,
-            "Max supply exceeded!"
+            "0xWEARABLE721: Max supply exceeded!"
         );
         _;
     }
 
     modifier mintPriceCompliance(uint256 _mintAmount, uint256 cost) {
-        require(msg.value >= cost * _mintAmount, "Insufficient funds!");
+        require(
+            msg.value >= cost * _mintAmount,
+            "0xWEARABLE721: Insufficient funds!"
+        );
         _;
     }
 
     modifier onlyAccounts() {
-        require(msg.sender == tx.origin, "Not allowed origin");
+        require(msg.sender == tx.origin, "0xWEARABLE721: Not allowed origin");
         _;
     }
 
@@ -101,7 +104,7 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     modifier onlyItemHandler() {
         require(
             msg.sender == itemHandler || msg.sender == owner(),
-            "Not allowed origin"
+            "0xWEARABLE721: you're not using item handling contract"
         );
         _;
     }
@@ -136,7 +139,7 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
         nonReentrant
         returns (bool success)
     {
-        require(_type == TOP || _type == BOTTOM, "Invalid type");
+        require(_type == TOP || _type == BOTTOM, "0xWEARABLE721: Invalid type");
         bool _success = false;
         if (_type == TOP) {
             _tokenInfo[tokenId].top = 0;
@@ -154,7 +157,7 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
         uint256 tokenId,
         uint256 erc1155Id
     ) external onlyItemHandler nonReentrant returns (bool success) {
-        require(_type == TOP || _type == BOTTOM, "Invalid type");
+        require(_type == TOP || _type == BOTTOM, "0xWEARABLE721: Invalid type");
         bool _success = false;
         if (_type == TOP) {
             _tokenInfo[tokenId].top = erc1155Id;
@@ -205,7 +208,7 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     function airdrop(uint256 _mintAmount, address _to) public onlyOwner {
         require(
             totalSupply() + _mintAmount <= maxSupply,
-            "airdrop amount exceeds max supply"
+            "0xWEARABLE721: airdrop amount exceeds max supply"
         );
         _safeMint(_to, _mintAmount);
     }
@@ -216,25 +219,28 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
         bytes32[] calldata _proof
     ) external payable isValidMerkleProof(_proof) onlyAccounts {
         uint256 _totalSupply = totalSupply();
-        require(msg.sender == account, "BAYC: Not allowed");
-        require(presaleM, "BAYC: Presale is OFF");
-        require(!paused, "BAYC: Contract is paused");
+        require(msg.sender == account, "0xWEARABLE721: Not allowed");
+        require(presaleM, "0xWEARABLE721: Presale is OFF");
+        require(!paused, "0xWEARABLE721: Contract is paused");
         require(
             _amount <= presaleAmountLimit,
-            "BAYC: You can't mint so much tokens"
+            "0xWEARABLE721: You can't mint so much tokens"
         );
         require(
             _presaleClaimed[msg.sender] + _amount <= presaleAmountLimit,
-            "BAYC: You can't mint so much tokens"
+            "0xWEARABLE721: You can't mint so much tokens"
         );
 
         // uint256 current = _tokenIds.current();
 
         require(
             _totalSupply + _amount <= maxSupply,
-            "BAYC: max supply exceeded"
+            "0xWEARABLE721: max supply exceeded"
         );
-        require(_price * _amount <= msg.value, "BAYC: Not enough ethers sent");
+        require(
+            _price * _amount <= msg.value,
+            "0xWEARABLE721: Not enough ethers sent"
+        );
 
         _presaleClaimed[msg.sender] += _amount;
 
@@ -248,8 +254,8 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
         mintPriceCompliance(_amount, _price)
         onlyAccounts
     {
-        require(publicM, "BAYC: PublicSale is OFF");
-        require(!paused, "BAYC: Contract is paused");
+        require(publicM, "0xWEARABLE721: PublicSale is OFF");
+        require(!paused, "0xWEARABLE721: Contract is paused");
         _safeMint(msg.sender, _amount);
     }
 
