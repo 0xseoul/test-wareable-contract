@@ -27,7 +27,7 @@ import "./interfaces/IWearable721.sol";
   @author web3.0 stevejobs
   @dev ERC721A contract for minting NFT tokens
 */
-contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard, IWEARABLE721 {
+contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     using Strings for uint256;
     using SafeMath for uint256;
 
@@ -51,9 +51,11 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard, IWEARABLE721 {
     bool public presaleM = false;
 
     mapping(address => uint256) public _presaleClaimed;
-    mapping(uint256 => TokenInfo) public _tokenInfo;
+    mapping(uint256 => IWEARABLE721.TokenInfo) public _tokenInfo;
 
     uint256 _price = 10**16; // 0.01 ETH
+
+    address internal itemHandler;
 
     // constructor(bytes32 merkleroot)
     constructor() ERC721A("BoredApe Yacht Club", "BAYC") ReentrancyGuard() {
@@ -97,7 +99,10 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard, IWEARABLE721 {
 
     // 이거 바꾸기
     modifier onlyItemHandler() {
-        require(msg.sender == owner(), "Not allowed origin");
+        require(
+            msg.sender == itemHandler || msg.sender == owner(),
+            "Not allowed origin"
+        );
         _;
     }
 
@@ -120,14 +125,15 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard, IWEARABLE721 {
     function getTokenInfo(uint256 _tokenId)
         external
         view
-        returns (TokenInfo memory)
+        returns (IWEARABLE721.TokenInfo memory)
     {
         return _tokenInfo[_tokenId];
     }
 
-    function burnCloths(uint256 _type, uint256 tokenId)
+    function dressDown(uint256 _type, uint256 tokenId)
         external
         onlyItemHandler
+        nonReentrant
         returns (bool success)
     {
         require(_type == TOP || _type == BOTTOM, "Invalid type");
@@ -143,11 +149,11 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard, IWEARABLE721 {
         return _success;
     }
 
-    function mintCloths(
+    function dressUp(
         uint256 _type,
         uint256 tokenId,
         uint256 erc1155Id
-    ) external onlyItemHandler returns (bool success) {
+    ) external onlyItemHandler nonReentrant returns (bool success) {
         require(_type == TOP || _type == BOTTOM, "Invalid type");
         bool _success = false;
         if (_type == TOP) {
@@ -159,6 +165,10 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard, IWEARABLE721 {
             _success = true;
         }
         return _success;
+    }
+
+    function setItemHandler(address _itemHandler) public onlyOwner {
+        itemHandler = _itemHandler;
     }
 
     function setMerkleRoot(bytes32 merkleroot) public onlyOwner {

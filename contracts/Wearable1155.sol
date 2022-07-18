@@ -29,6 +29,9 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
 
     uint256 public constant GOLD = 1;
     uint256 public constant SILVER = 2;
+
+    address internal itemHandler;
+
     // uint256 public constant THORS_HAMMER = 2;
     // uint256 public constant SWORD = 3;
     // uint256 public constant SHIELD = 4;
@@ -60,7 +63,17 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         // _mint(msg.sender, SHIELD, 10**9, "");
     }
 
+    // 이거 바꾸기
+    modifier onlyItemHandler() {
+        require(
+            msg.sender == itemHandler || msg.sender == owner(),
+            "Not allowed origin"
+        );
+        _;
+    }
+
     function uri(uint256 _id) public view override returns (string memory) {
+        require(exists(_id), "ERC1155 token does not exist");
         return tokenURI[_id];
     }
 
@@ -73,15 +86,32 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         emit URI(_uri, _id);
     }
 
+    function setItemHandler(address _itemHandler) public onlyOwner {
+        itemHandler = _itemHandler;
+    }
+
     function mintBatch(
         address _to,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) external onlyOwner {
+    ) external onlyOwner nonReentrant {
         _mintBatch(_to, _ids, _amounts, "");
     }
 
-    function burn(uint256 _id, uint256 _amount) external {
+    function mint(address _to, uint256 _id)
+        external
+        onlyItemHandler
+        nonReentrant
+    {
+        require(exists(_id), "ERC1155 token does not exist");
+        _mint(_to, _id, 1, "");
+    }
+
+    function burn(uint256 _id, uint256 _amount)
+        external
+        onlyItemHandler
+        nonReentrant
+    {
         require(
             balanceOf(msg.sender, _id) > _amount + 1,
             "0xSEOUL: balance is not enough"
@@ -91,6 +121,8 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
 
     function burnBatch(uint256[] memory _ids, uint256[] memory _amounts)
         external
+        onlyItemHandler
+        nonReentrant
     {
         for (uint256 i = 0; i < _ids.length; i++) {
             require(

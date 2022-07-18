@@ -6,8 +6,9 @@ pragma solidity ^0.8.15;
  * @author Abe
  * @dev Wearable721 interface.
  */
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-interface IWEARABLE721 {
+interface IWEARABLE721 is IERC721 {
     /**
      * @notice This struct contains data related to a Staked Tokens
      *
@@ -26,20 +27,20 @@ interface IWEARABLE721 {
     /// @notice event emitted when a user has minted a ERC1155 nft
     // event MintedCloths(address owner, uint256 tokenId);
 
-    function getTokenInfo(uint256 tokenId)
+    function getTokenInfo(uint256 erc721Id)
         external
         view
         returns (TokenInfo memory);
 
-    function burnCloths(uint256 _type, uint256 tokenId)
+    function dressDown(uint256 _type, uint256 erc721Id)
         external
         returns (bool success);
 
-    // function mintCloths(
-    //     uint256 _type,
-    //     uint256 tokenId,
-    //     uint256 erc1155Id
-    // ) external returns (bool success);
+    function dressUp(
+        uint256 _type,
+        uint256 erc721Id,
+        uint256 erc1155Id
+    ) external returns (bool success);
 }
 
 // staking 쪽으로 가는게 아마도 비용측면에서 나을듯
