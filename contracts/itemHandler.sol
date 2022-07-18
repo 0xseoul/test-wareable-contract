@@ -78,7 +78,7 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
 
         wearable1155.burnERC1155(_erc1155Id, _owner);
         wearable721.dressUp(_type, _erc721Id, _erc1155Id);
-        emit DressedUp(msg.sender, _erc721Id, _erc1155Id);
+        // emit DressedUp(msg.sender, _erc721Id, _erc1155Id);
         return true;
     }
 
@@ -97,7 +97,7 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
 
         wearable721.dressDown(_type, _erc721Id);
         wearable1155.mintERC1155(_erc1155Id, _owner);
-        emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
+        // emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
         return true;
     }
 }

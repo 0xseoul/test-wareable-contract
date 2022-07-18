@@ -67,7 +67,7 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
     modifier onlyItemHandler() {
         require(
             msg.sender == itemHandler || msg.sender == owner(),
-            "Not allowed origin"
+            "you're not the item handler"
         );
         _;
     }
@@ -107,6 +107,14 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         _mint(_to, _id, 1, "");
     }
 
+    function mintERC1155(uint256 erc1155Id, address _to)
+        public
+        nonReentrant
+        onlyItemHandler
+    {
+        _mint(_to, erc1155Id, 1, "");
+    }
+
     function burn(uint256 _id, uint256 _amount)
         external
         onlyItemHandler
@@ -117,6 +125,18 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
             "0xSEOUL: balance is not enough"
         );
         _burn(msg.sender, _id, _amount);
+    }
+
+    function burnERC1155(uint256 erc1155Id, address _to)
+        public
+        returns (bool success)
+    {
+        require(
+            balanceOf(_to, erc1155Id) > 0,
+            "0xSEOUL: balance is not enough"
+        );
+        _burn(_to, erc1155Id, 1);
+        return true;
     }
 
     function burnBatch(uint256[] memory _ids, uint256[] memory _amounts)
