@@ -53,7 +53,8 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     mapping(address => uint256) public _presaleClaimed;
     mapping(uint256 => IWEARABLE721.TokenInfo) public _tokenInfo;
 
-    uint256 _price = 10**16; // 0.01 ETH
+    uint256 _price = 0; // 0.0 ETH
+    // uint256 _price = 10**16; // 0.01 ETH
 
     address internal itemHandler;
 
@@ -172,6 +173,10 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
 
     function setItemHandler(address _itemHandler) public onlyOwner {
         itemHandler = _itemHandler;
+    }
+
+    function setBaseExtension(string memory _baseExtension) public onlyOwner {
+        baseExtension = _baseExtension;
     }
 
     function setMerkleRoot(bytes32 merkleroot) public onlyOwner {

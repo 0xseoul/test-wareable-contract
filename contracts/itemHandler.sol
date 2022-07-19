@@ -77,10 +77,11 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
 
         wearable1155.burnERC1155(_erc1155Id, msg.sender);
         wearable721.dressUp(_type, _erc721Id, _erc1155Id);
-        // emit DressedUp(msg.sender, _erc721Id, _erc1155Id);
+        emit DressedUp(msg.sender, _erc721Id, _erc1155Id);
         return true;
     }
 
+    // FIXME: 이 함수 작동 안함
     function dressDown(
         uint256 _erc721Id,
         uint256 _erc1155Id,
@@ -92,10 +93,13 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
             wearable721.ownerOf(_erc721Id) == msg.sender,
             "0xseoul: you are not the owner of this token"
         );
-
+        // 여기 수정해야 할 듯
+        // erc1155를 erc721에서 가져와서 그거를 사용해야할듯
+        // type만 알려주고 getTokenInfo에서 top bottom가져와서 mint여기에 넣기
+        // 그러면 _erc1155Id이거는 없애도 될듯
         wearable721.dressDown(_type, _erc721Id);
         wearable1155.mintERC1155(_erc1155Id, msg.sender);
-        // emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
+        emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
         return true;
     }
 }
