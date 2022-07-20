@@ -82,17 +82,26 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
     }
 
     // FIXME: 이 함수 작동 안함
-    function dressDown(
-        uint256 _erc721Id,
-        uint256 _erc1155Id,
-        uint256 _type
-    ) public nonReentrant returns (bool success) {
+    function dressDown(uint256 _erc721Id, uint256 _type)
+        public
+        nonReentrant
+        returns (bool success)
+    {
         // check _erc721Id tokwn owner
         // check _erc1155Id tokwn owner
         require(
             wearable721.ownerOf(_erc721Id) == msg.sender,
             "0xseoul: you are not the owner of this token"
         );
+
+        IWEARABLE721.TokenInfo memory _tokenInfo = wearable721.getTokenInfo(
+            _erc721Id
+        );
+
+        uint256[2] memory _erc1155Ids = [_tokenInfo.top, _tokenInfo.bottom];
+        uint256 _erc1155Id = _erc1155Ids[_type];
+        // uint256 _erc1155Id = _tokenInfo
+
         // 여기 수정해야 할 듯
         // erc1155를 erc721에서 가져와서 그거를 사용해야할듯
         // type만 알려주고 getTokenInfo에서 top bottom가져와서 mint여기에 넣기

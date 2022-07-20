@@ -27,11 +27,9 @@ interface IItemHandler {
         uint256 _type
     ) external returns (bool success);
 
-    function dressDown(
-        uint256 _erc721Id,
-        uint256 _erc1155Id,
-        uint256 _type
-    ) external returns (bool success);
+    function dressDown(uint256 _erc721Id, uint256 _type)
+        external
+        returns (bool success);
 
     // function dressDown(uint256 tokenId, uint256 erc1155Id)
     //     external

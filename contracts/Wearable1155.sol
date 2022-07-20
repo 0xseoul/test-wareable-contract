@@ -67,7 +67,7 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
     modifier onlyItemHandler() {
         require(
             msg.sender == itemHandler || msg.sender == owner(),
-            "you're not the item handler"
+            "0xWEARABLE1155:you're not the item handler"
         );
         _;
     }
@@ -111,8 +111,11 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         public
         nonReentrant
         onlyItemHandler
+        returns (bool success)
     {
+        require(exists(erc1155Id), "ERC1155 token does not exist");
         _mint(_to, erc1155Id, 1, "");
+        return true;
     }
 
     function burn(uint256 _id, uint256 _amount)
