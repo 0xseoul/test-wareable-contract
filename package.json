@@ -13,7 +13,8 @@
     "solidity-coverage": "^0.7.21"
   },
   "scripts": {
-    "start": "cd ./contracts && remixd -s . --remix-ide https://remix.ethereum.org"
+    "start": "cd ./contracts && remixd -s . --remix-ide https://remix.ethereum.org",
+    "deploy": "npx hardhat run scripts/deploy.ts --network rinkeby"
   },
   "devDependencies": {
     "prettier": "^2.6.2",

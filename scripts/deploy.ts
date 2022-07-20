@@ -1,26 +1,29 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
+import fs from "fs";
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  const wearable721 = await ethers.getContractFactory("WEARABLE721");
+  const wearable1155 = await ethers.getContractFactory("WEARABLE1155");
+  const itemHandler = await ethers.getContractFactory("ItemHandler");
+  const WEARABLE721 = await wearable721.deploy();
+  const WEARABLE1155 = await wearable1155.deploy();
 
-  // We get the contract to deploy
-  // const Greeter = await ethers.getContractFactory("Greeter");
-  const nftContract = await ethers.getContractFactory("NftContract");
-  const greeter = await nftContract.deploy("Hello, Hardhat!");
+  // await greeter.deployed();
+  const ITEMHANDLER = await itemHandler.deploy(
+    WEARABLE721.address,
+    WEARABLE721.address
+  );
 
-  await greeter.deployed();
-
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("WEARABLE721", WEARABLE721.address);
+  console.log("WEARABLE1155", WEARABLE1155.address);
+  console.log("ITEMHANDLER", ITEMHANDLER.address);
+  // make config json
+  const config = {
+    WEARABLE721: WEARABLE721.address,
+    WEARABLE1155: WEARABLE1155.address,
+    ITEMHANDLER: ITEMHANDLER.address,
+  };
+  fs.writeFileSync("config.json", JSON.stringify(config));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
