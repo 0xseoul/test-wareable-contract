@@ -99,7 +99,18 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
         // 그러면 _erc1155Id이거는 없애도 될듯
         wearable721.dressDown(_type, _erc721Id);
         wearable1155.mintERC1155(_erc1155Id, msg.sender);
-        emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
+        // emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
         return true;
+    }
+
+    function wearable721DressDown(uint256 _erc721Id, uint256 _type)
+        public
+        nonReentrant
+    {
+        wearable721.dressDown(_type, _erc721Id);
+    }
+
+    function wearable1155Mint(uint256 _erc1155Id) public nonReentrant {
+        wearable1155.mintERC1155(_erc1155Id, msg.sender);
     }
 }

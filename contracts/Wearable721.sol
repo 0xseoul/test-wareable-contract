@@ -10,309 +10,107 @@ $$    $$/ /$$/ $$  |/     $$/ $$       |$$    $$/ $$    $$/ $$ |
  $$$$$$/  $$/   $$/ $$$$$$$/   $$$$$$$/  $$$$$$/   $$$$$$/  $$/ 
                                                                                                                                                                                                                                   
  */
+
 // SPDX-License-Identifier: MIT
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
+import "./interfaces/IWearable721.sol";
+import "./interfaces/IWearable1155.sol";
+import "./interfaces/IItemHandler.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 pragma solidity ^0.8.15;
 
-import "erc721a/contracts/ERC721A.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "./interfaces/IWearable721.sol";
-
-//
-/**
-  @title minting website NFT contract opensource
-  @author web3.0 stevejobs
-  @dev ERC721A contract for minting NFT tokens
-*/
-contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
+contract ItemHandler is ReentrancyGuard, IItemHandler {
     using Strings for uint256;
     using SafeMath for uint256;
+    IWEARABLE721 public wearable721;
+    IWEARABLE1155 public wearable1155;
 
-    uint256 constant TOP = 0;
-    uint256 constant BOTTOM = 1;
+    address internal owner;
 
-    bytes32 public root;
-
-    uint256 public maxMintAmountPerTx = 3;
-    uint256 public maxSupply = 100;
-    uint256 presaleAmountLimit = 3;
-
-    string public baseURI;
-    string public notRevealedUri =
-        "ipfs://QmcXG9QgbBocXuXHA3HukSDGF9aAEi88niNMspwvqRmaNp.json";
-    string public baseExtension = ".json";
-
-    bool public paused = false;
-    bool public revealed = false;
-    bool public publicM = false;
-    bool public presaleM = false;
-
-    mapping(address => uint256) public _presaleClaimed;
-    mapping(uint256 => IWEARABLE721.TokenInfo) public _tokenInfo;
-
-    uint256 _price = 0; // 0.0 ETH
-    // uint256 _price = 10**16; // 0.01 ETH
-
-    address internal itemHandler;
-
-    // constructor(bytes32 merkleroot)
-    constructor() ERC721A("BoredApe Yacht Club", "BAYC") ReentrancyGuard() {
-        maxSupply = 100;
-        // root = merkleroot;
+    constructor(address _erc721, address _erc1155) {
+        owner = msg.sender;
+        wearable721 = IWEARABLE721(_erc721);
+        wearable1155 = IWEARABLE1155(_erc1155);
     }
 
-    modifier isValidMerkleProof(bytes32[] calldata _proof) {
+    modifier onlyOwner() {
         require(
-            MerkleProof.verify(
-                _proof,
-                root,
-                keccak256(abi.encodePacked(msg.sender))
-            ) == true,
-            "0xWEARABLE721: merkle proof is not valid"
-        );
-        _;
-    }
-
-    modifier mintCompliance(uint256 _mintAmount) {
-        require(
-            _mintAmount > 0 && _mintAmount <= maxMintAmountPerTx,
-            "0xWEARABLE721: Invalid mint amount!"
-        );
-        require(
-            totalSupply() + _mintAmount <= maxSupply,
-            "0xWEARABLE721: Max supply exceeded!"
-        );
-        _;
-    }
-
-    modifier mintPriceCompliance(uint256 _mintAmount, uint256 cost) {
-        require(
-            msg.value >= cost * _mintAmount,
-            "0xWEARABLE721: Insufficient funds!"
+            msg.sender == owner,
+            "0xseoul: only owner can call this function"
         );
         _;
     }
 
     modifier onlyAccounts() {
-        require(msg.sender == tx.origin, "0xWEARABLE721: Not allowed origin");
+        require(msg.sender == tx.origin, "0xItemHandler: Not allowed origin");
         _;
     }
 
-    // 이거 바꾸기
-    modifier onlyItemHandler() {
-        require(
-            msg.sender == itemHandler || msg.sender == owner(),
-            "0xWEARABLE721: you're not using item handling contract"
-        );
-        _;
+    function setWearable721(address _wearable721) public {
+        wearable721 = IWEARABLE721(_wearable721);
     }
 
-    function toggleReveal() public onlyOwner {
-        revealed = !revealed;
-    }
-
-    function togglePause() public onlyOwner {
-        paused = !paused;
-    }
-
-    function togglePresale() public onlyOwner {
-        presaleM = !presaleM;
-    }
-
-    function togglePublicSale() public onlyOwner {
-        publicM = !publicM;
-    }
-
-    function getTokenInfo(uint256 _tokenId)
-        external
-        view
-        returns (IWEARABLE721.TokenInfo memory)
-    {
-        return _tokenInfo[_tokenId];
-    }
-
-    function dressDown(uint256 _type, uint256 tokenId)
-        external
-        onlyItemHandler
-        nonReentrant
-        returns (bool success)
-    {
-        require(_type == TOP || _type == BOTTOM, "0xWEARABLE721: Invalid type");
-        bool _success = false;
-        if (_type == TOP) {
-            _tokenInfo[tokenId].top = 0;
-            _success = true;
-        }
-        if (_type == BOTTOM) {
-            _tokenInfo[tokenId].bottom = 0;
-            _success = true;
-        }
-        return _success;
+    function setWearable1155(address _wearable1155) public {
+        wearable1155 = IWEARABLE1155(_wearable1155);
     }
 
     function dressUp(
-        uint256 _type,
-        uint256 tokenId,
-        uint256 erc1155Id
-    ) external onlyItemHandler nonReentrant returns (bool success) {
-        require(_type == TOP || _type == BOTTOM, "0xWEARABLE721: Invalid type");
-        bool _success = false;
-        if (_type == TOP) {
-            _tokenInfo[tokenId].top = erc1155Id;
-            _success = true;
-        }
-        if (_type == BOTTOM) {
-            _tokenInfo[tokenId].bottom = erc1155Id;
-            _success = true;
-        }
-        return _success;
+        uint256 _erc721Id,
+        uint256 _erc1155Id,
+        uint256 _type
+    ) public nonReentrant onlyAccounts returns (bool success) {
+        // check _erc721Id tokwn owner
+        require(
+            wearable721.ownerOf(_erc721Id) == msg.sender,
+            "0xseoul: you are not the owner of this erc721 token"
+        );
+        // check _erc1155Id tokwn owner
+        require(
+            wearable1155.balanceOf(msg.sender, _erc1155Id) > 0,
+            "0xseoul: you are not the owner of this erc1155 token"
+        );
+
+        wearable1155.burnERC1155(_erc1155Id, msg.sender);
+        wearable721.dressUp(_type, _erc721Id, _erc1155Id);
+        emit DressedUp(msg.sender, _erc721Id, _erc1155Id);
+        return true;
     }
 
-    function setItemHandler(address _itemHandler) public onlyOwner {
-        itemHandler = _itemHandler;
+    // FIXME: 이 함수 작동 안함
+    function dressDown(
+        uint256 _erc721Id,
+        uint256 _erc1155Id,
+        uint256 _type
+    ) public nonReentrant returns (bool success) {
+        // check _erc721Id tokwn owner
+        // check _erc1155Id tokwn owner
+        require(
+            wearable721.ownerOf(_erc721Id) == msg.sender,
+            "0xseoul: you are not the owner of this token"
+        );
+        // 여기 수정해야 할 듯
+        // erc1155를 erc721에서 가져와서 그거를 사용해야할듯
+        // type만 알려주고 getTokenInfo에서 top bottom가져와서 mint여기에 넣기
+        // 그러면 _erc1155Id이거는 없애도 될듯
+        wearable721.dressDown(_type, _erc721Id);
+        wearable1155.mintERC1155(_erc1155Id, msg.sender);
+        // emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
+        return true;
     }
 
-    function setBaseExtension(string memory _baseExtension) public onlyOwner {
-        baseExtension = _baseExtension;
-    }
-
-    function setMerkleRoot(bytes32 merkleroot) public onlyOwner {
-        root = merkleroot;
-    }
-
-    function setBaseURI(string memory _tokenBaseURI) public onlyOwner {
-        baseURI = _tokenBaseURI;
-    }
-
-    function setMaxMintAmountPerTx(uint256 _maxMintAmountPerTx)
+    function wearable721DressDown(uint256 _erc721Id, uint256 _type)
         public
-        onlyOwner
+        nonReentrant
     {
-        maxMintAmountPerTx = _maxMintAmountPerTx;
+        wearable721.dressDown(_type, _erc721Id);
     }
 
-    function setMaxSupply(uint256 _maxSupply) public onlyOwner {
-        maxSupply = _maxSupply;
-    }
-
-    function setPublicSalePrice(uint256 _cost) public onlyOwner {
-        _price = _cost;
-    }
-
-    function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {
-        notRevealedUri = _notRevealedURI;
-    }
-
-    function _baseURI() internal view override returns (string memory) {
-        return baseURI;
-    }
-
-    function airdrop(uint256 _mintAmount, address _to) public onlyOwner {
-        require(
-            totalSupply() + _mintAmount <= maxSupply,
-            "0xWEARABLE721: airdrop amount exceeds max supply"
-        );
-        _safeMint(_to, _mintAmount);
-    }
-
-    function presaleMint(
-        address account,
-        uint256 _amount,
-        bytes32[] calldata _proof
-    ) external payable isValidMerkleProof(_proof) onlyAccounts {
-        uint256 _totalSupply = totalSupply();
-        require(msg.sender == account, "0xWEARABLE721: Not allowed");
-        require(presaleM, "0xWEARABLE721: Presale is OFF");
-        require(!paused, "0xWEARABLE721: Contract is paused");
-        require(
-            _amount <= presaleAmountLimit,
-            "0xWEARABLE721: You can't mint so much tokens"
-        );
-        require(
-            _presaleClaimed[msg.sender] + _amount <= presaleAmountLimit,
-            "0xWEARABLE721: You can't mint so much tokens"
-        );
-
-        // uint256 current = _tokenIds.current();
-
-        require(
-            _totalSupply + _amount <= maxSupply,
-            "0xWEARABLE721: max supply exceeded"
-        );
-        require(
-            _price * _amount <= msg.value,
-            "0xWEARABLE721: Not enough ethers sent"
-        );
-
-        _presaleClaimed[msg.sender] += _amount;
-
-        _safeMint(msg.sender, _amount);
-    }
-
-    function publicSaleMint(uint256 _amount)
-        external
-        payable
-        mintCompliance(_amount)
-        mintPriceCompliance(_amount, _price)
-        onlyAccounts
-    {
-        require(publicM, "0xWEARABLE721: PublicSale is OFF");
-        require(!paused, "0xWEARABLE721: Contract is paused");
-        _safeMint(msg.sender, _amount);
-    }
-
-    function _startTokenId() internal view virtual override returns (uint256) {
-        return 1;
-    }
-
-    function tokenURI(uint256 _tokenId)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        require(
-            _exists(_tokenId),
-            "ERC721Metadata: URI query for nonexistent token"
-        );
-        if (revealed == false) {
-            return notRevealedUri;
-        }
-
-        string memory currentBaseURI = _baseURI();
-
-        return
-            bytes(currentBaseURI).length > 0
-                ? string(
-                    abi.encodePacked(
-                        currentBaseURI,
-                        _tokenId.toString(),
-                        baseExtension
-                    )
-                )
-                : "";
-    }
-
-    function withdraw() public onlyOwner nonReentrant {
-        // This will pay nft-utilz 5% of the initial sale.
-        // You can remove this if you want, or keep it in to support nft-utilz open source.
-        // =============================================================================
-        (bool abe, ) = payable(0x45E3Ca56946e0ee4bf36e893CC4fbb96A1523212).call{
-            value: (address(this).balance * 5) / 100
-        }("");
-        require(abe, "0xabe721 5% of the initial sale");
-        // =============================================================================
-
-        // This will transfer the remaining contract balance to the owner.
-        // Do not remove this otherwise you will not be able to withdraw the funds.
-        // =============================================================================
-        (bool success, ) = payable(owner()).call{value: address(this).balance}(
-            ""
-        );
-        require(success, "Transfer failed.");
+    function wearable1155Mint(uint256 _erc1155Id) public nonReentrant {
+        wearable1155.mintERC1155(_erc1155Id, msg.sender);
     }
 }
