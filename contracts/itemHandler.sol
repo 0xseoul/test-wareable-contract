@@ -41,13 +41,16 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
     modifier onlyOwner() {
         require(
             msg.sender == owner,
-            "0xseoul: only owner can call this function"
+            "0xseoul itemHandler: only owner can call this function"
         );
         _;
     }
 
     modifier onlyAccounts() {
-        require(msg.sender == tx.origin, "0xItemHandler: Not allowed origin");
+        require(
+            msg.sender == tx.origin,
+            "0xseoul itemHandler: Not allowed origin"
+        );
         _;
     }
 
@@ -67,13 +70,17 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
         // check _erc721Id tokwn owner
         require(
             wearable721.ownerOf(_erc721Id) == msg.sender,
-            "0xseoul: you are not the owner of this erc721 token"
+            "0xseoul itemHandler: you are not the owner of this erc721 token"
         );
         // check _erc1155Id tokwn owner
         require(
             wearable1155.balanceOf(msg.sender, _erc1155Id) > 0,
-            "0xseoul: you are not the owner of this erc1155 token"
+            "0xseoul itemHandler: you are not the owner of this erc1155 token"
         );
+        uint256 _wearingERC1155Id = getWearingERC1155Id(_type, _erc721Id);
+
+        if (_wearingERC1155Id != 0)
+            revert("0xseoul itemHandler: you are already wearing this item");
 
         wearable1155.burnERC1155(_erc1155Id, msg.sender);
         wearable721.dressUp(_type, _erc721Id, _erc1155Id);
@@ -91,16 +98,12 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
         // check _erc1155Id tokwn owner
         require(
             wearable721.ownerOf(_erc721Id) == msg.sender,
-            "0xseoul: you are not the owner of this token"
+            "0xseoul itemHandler: you are not the owner of ERC721 token"
         );
 
-        IWEARABLE721.TokenInfo memory _tokenInfo = wearable721.getTokenInfo(
-            _erc721Id
-        );
-
-        uint256[2] memory _erc1155Ids = [_tokenInfo.top, _tokenInfo.bottom];
-        uint256 _erc1155Id = _erc1155Ids[_type];
-        // uint256 _erc1155Id = _tokenInfo
+        uint256 _erc1155Id = getWearingERC1155Id(_type, _erc721Id);
+        if (_erc1155Id == 0)
+            revert("0xseoul itemHandler: this token is not dressed");
 
         // 여기 수정해야 할 듯
         // erc1155를 erc721에서 가져와서 그거를 사용해야할듯
@@ -110,5 +113,19 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
         wearable1155.mintERC1155(_erc1155Id, msg.sender);
         emit DressedDown(msg.sender, _erc721Id, _erc1155Id);
         return true;
+    }
+
+    function getWearingERC1155Id(uint256 _type, uint256 _erc721Id)
+        public
+        view
+        returns (uint256)
+    {
+        IWEARABLE721.TokenInfo memory _tokenInfo = wearable721.getTokenInfo(
+            _erc721Id
+        );
+
+        uint256[2] memory _erc1155Ids = [_tokenInfo.top, _tokenInfo.bottom];
+        uint256 _erc1155Id = _erc1155Ids[_type];
+        return _erc1155Id;
     }
 }
