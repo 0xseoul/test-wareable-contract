@@ -14,7 +14,8 @@
   },
   "scripts": {
     "start": "cd ./contracts && remixd -s . --remix-ide https://remix.ethereum.org",
-    "deploy": "npx hardhat run scripts/deploy.ts --network rinkeby"
+    "deploy": "npx hardhat run scripts/deploy.ts --network rinkeby",
+    "verify": "npx hardhat verify --network rinkeby --constructor-args ./verify/arguments.js 0x043598255758788487fC68D21828885DA96b1E04"
   },
   "devDependencies": {
     "prettier": "^2.6.2",

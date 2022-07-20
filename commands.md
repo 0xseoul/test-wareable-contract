@@ -4,6 +4,8 @@ remixd -s . --remix-ide https://remix.ethereum.org
 
 npx hardhat run --network testnet <scriptname>
 
+npx hardhat verify --constructor-args arguments.js DEPLOYED_CONTRACT_ADDRESS
+
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.0.4",
     "@nomiclabs/hardhat-waffle": "^2.0.3",

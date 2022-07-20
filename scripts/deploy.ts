@@ -11,7 +11,7 @@ async function main() {
   // await greeter.deployed();
   const ITEMHANDLER = await itemHandler.deploy(
     WEARABLE721.address,
-    WEARABLE721.address
+    WEARABLE1155.address
   );
 
   console.log("WEARABLE721", WEARABLE721.address);
@@ -23,7 +23,7 @@ async function main() {
     WEARABLE1155: WEARABLE1155.address,
     ITEMHANDLER: ITEMHANDLER.address,
   };
-  fs.writeFileSync("config.json", JSON.stringify(config));
+  fs.writeFileSync("web3Config.json", JSON.stringify(config));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
