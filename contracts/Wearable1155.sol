@@ -26,41 +26,29 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
     string public name;
     string public symbol;
-
-    uint256 public constant GOLD = 1;
-    uint256 public constant SILVER = 2;
+    /**
+       1 => hat
+       2 => top
+       3 => bottom
+       4 => shoes
+       ...
+     */
+    mapping(uint256 => uint256[]) public clothesTypes;
 
     address internal itemHandler;
 
-    // uint256 public constant THORS_HAMMER = 2;
-    // uint256 public constant SWORD = 3;
-    // uint256 public constant SHIELD = 4;
     mapping(uint256 => string) public tokenURI;
 
     constructor() ERC1155(" ") {
-        // constructor(string memory uri_) ERC1155(uri_) {
-        // "https://game.example/api/item/{id}.json"
-        name = "0xLAWAREABLE";
-        symbol = "0xLA";
-        // setURI(GOLD, uri_);
+        name = "EDEN";
+        symbol = "0xSEOUL";
 
-        _mint(msg.sender, GOLD, 10, "");
-        _mint(msg.sender, SILVER, 20, "");
+        // _mint(msg.sender, GOLD, 10, "");
 
-        setURI(
-            GOLD,
-            "ipfs://QmYpqAu6DBvuiWM3M8Tz5aqjA94HQaxw52qKhX6XmHzxMp/metadata-item1.json"
-        );
-
-        setURI(
-            SILVER,
-            "ipfs://QmYpqAu6DBvuiWM3M8Tz5aqjA94HQaxw52qKhX6XmHzxMp/metadata-item2.json"
-        );
-        // _mint(msg.sender, GOLD, 10**18, "");
-        // _mint(msg.sender, SILVER, 10**27, "");
-        // _mint(msg.sender, THORS_HAMMER, 1, "");
-        // _mint(msg.sender, SWORD, 10**9, "");
-        // _mint(msg.sender, SHIELD, 10**9, "");
+        // setURI(
+        //     GOLD,
+        //     "ipfs://QmYpqAu6DBvuiWM3M8Tz5aqjA94HQaxw52qKhX6XmHzxMp/metadata-item1.json"
+        // );
     }
 
     // 이거 바꾸기
@@ -76,10 +64,6 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         require(exists(_id), "ERC1155 token does not exist");
         return tokenURI[_id];
     }
-
-    // function setTokenURI(uint256 _id, string memory _uri) public {
-    //     tokenURI[_id] = _uri;
-    // }
 
     function setURI(uint256 _id, string memory _uri) public onlyOwner {
         tokenURI[_id] = _uri;

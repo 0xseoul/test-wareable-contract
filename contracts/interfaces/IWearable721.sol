@@ -12,13 +12,31 @@ interface IWEARABLE721 is IERC721 {
     /**
      * @notice This struct contains data related to a Staked Tokens
      *
-     * @param top - erc1155 token id of the top token
-     * @param bottom - erc1155 token id of the bottom token
+     * @param hair - erc1155 token id of the hair token
+     * @param background - erc1155 token id of the background token
+     * @param additionalItem -  erc1155 token id which will be used in future updates
+
      */
 
     struct TokenInfo {
-        uint256 top;
-        uint256 bottom;
+        uint256 hair;
+        uint256 clothing;
+        uint256 eyes;
+        uint256 mouth;
+        uint256 offHand;
+        uint256 eyeWear;
+        uint256 skin;
+        uint256 background;
+        uint256 additionalItem1;
+        uint256 additionalItem2;
+        uint256 additionalItem3;
+        uint256 additionalItem4;
+        uint256 additionalItem5;
+        uint256 additionalItem6;
+        uint256 additionalItem7;
+        uint256 additionalItem8;
+        uint256 additionalItem9;
+        uint256 additionalItem10;
     }
 
     /// @notice event emitted when a user has burned a ERC1155 nft
