@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IWEARABLE721 is IERC721 {
     /**
-     * @notice This struct contains data related to a Staked Tokens
+     * @notice This struct contains data related to Tokens
      *
      * @param hair - erc1155 token id of the hair token
      * @param background - erc1155 token id of the background token

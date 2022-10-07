@@ -33,22 +33,19 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
        4 => shoes
        ...
      */
-    mapping(uint256 => uint256[]) public clothesTypes;
+    //     token id => token type
+    mapping(uint256 => uint256) public clothesTypes;
 
     address internal itemHandler;
+
+    address internal admin;
+    uint256 public totalSupply;
 
     mapping(uint256 => string) public tokenURI;
 
     constructor() ERC1155(" ") {
         name = "EDEN";
         symbol = "0xSEOUL";
-
-        // _mint(msg.sender, GOLD, 10, "");
-
-        // setURI(
-        //     GOLD,
-        //     "ipfs://QmYpqAu6DBvuiWM3M8Tz5aqjA94HQaxw52qKhX6XmHzxMp/metadata-item1.json"
-        // );
     }
 
     // 이거 바꾸기
@@ -56,6 +53,14 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         require(
             msg.sender == itemHandler || msg.sender == owner(),
             "0xWEARABLE1155:you're not the item handler"
+        );
+        _;
+    }
+
+    modifier onlyAdmin() {
+        require(
+            msg.sender == owner() || msg.sender == admin,
+            "0xWEARABLE1155:you're not the admin"
         );
         _;
     }
@@ -72,6 +77,10 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
 
     function setItemHandler(address _itemHandler) public onlyOwner {
         itemHandler = _itemHandler;
+    }
+
+    function setAdmin(address _admin) external onlyOwner {
+        admin = _admin;
     }
 
     function mintBatch(
@@ -138,5 +147,17 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
             );
         }
         _burnBatch(msg.sender, _ids, _amounts);
+    }
+
+    function createNewClothes(
+        uint256 _type,
+        uint256 _tokenSupply,
+        string memory _uri
+    ) external onlyAdmin {
+        uint256 _tokenId = totalSupply + 1;
+        _mint(owner(), _tokenId, _tokenSupply, "");
+        setURI(_tokenId, _uri);
+        clothesTypes[_tokenId] = _type;
+        totalSupply = totalSupply + 1;
     }
 }

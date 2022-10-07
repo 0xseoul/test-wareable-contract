@@ -124,7 +124,26 @@ contract ItemHandler is ReentrancyGuard, IItemHandler {
             _erc721Id
         );
 
-        uint256[2] memory _erc1155Ids = [_tokenInfo.top, _tokenInfo.bottom];
+        uint256[18] memory _erc1155Ids = [
+            _tokenInfo.hair,
+            _tokenInfo.clothing,
+            _tokenInfo.eyes,
+            _tokenInfo.mouth,
+            _tokenInfo.offHand,
+            _tokenInfo.eyeWear,
+            _tokenInfo.skin,
+            _tokenInfo.background,
+            _tokenInfo.additionalItem1,
+            _tokenInfo.additionalItem2,
+            _tokenInfo.additionalItem3,
+            _tokenInfo.additionalItem4,
+            _tokenInfo.additionalItem5,
+            _tokenInfo.additionalItem6,
+            _tokenInfo.additionalItem7,
+            _tokenInfo.additionalItem8,
+            _tokenInfo.additionalItem9,
+            _tokenInfo.additionalItem10
+        ];
         uint256 _erc1155Id = _erc1155Ids[_type];
         return _erc1155Id;
     }
