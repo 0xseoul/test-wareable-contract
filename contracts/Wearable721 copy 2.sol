@@ -209,11 +209,36 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
 
         _tokenInfo[tokenId][_type] = 0;
 
+        // if (_type == hair) {
+        //     _tokenInfo[tokenId].hair = 0;
+        // } else if (_type == clothing) {
+        //     _tokenInfo[tokenId].clothing = 0;
+        // } else if (_type == eyes) {
+        //     _tokenInfo[tokenId].eyes = 0;
+        // } else if (_type == mouth) {
+        //     _tokenInfo[tokenId].mouth = 0;
+        // } else if (_type == offHand) {
+        //     _tokenInfo[tokenId].offHand = 0;
+        // } else if (_type == eyeWear) {
+        //     _tokenInfo[tokenId].eyeWear = 0;
+        // } else if (_type == skin) {
+        //     _tokenInfo[tokenId].skin = 0;
+        // } else if (_type == background) {
+        //     _tokenInfo[tokenId].background = 0;
+        // } else if (_type == additionalItem1) {
+        //     _tokenInfo[tokenId].additionalItem1 = 0;
+        // } else if (_type == additionalItem2) {
+        //     _tokenInfo[tokenId].additionalItem2 = 0;
+        // }
+
+        // if (_type == TOP) {
+        //     _tokenInfo[tokenId].top = erc1155Id;
+        //     _success = true;
+        // }
         return true;
     }
 
-    /**     
-            함수 dressUp
+    /**
             @dev 옷을 착용하는 함수입니다.
             옷을 착용 하는 경우, 해당 아이디를 mapping에서 찾아서, 해당 의류의 아이디를 넣습니다.
           * @param _type 의류 종류
@@ -234,12 +259,16 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     ) external onlyItemHandler nonReentrant returns (bool success) {
         // require(_type == TOP || _type == BOTTOM, "0xWEARABLE721: Invalid type");
         require(_type >= 0 && _type <= 17, "0xWEARABLE721: Invalid type");
-        require(
-            _exists(tokenId),
-            "0xWEARABLE721: Token does not exist, cannot dress up"
-        );
         _tokenInfo[tokenId][_type] = erc1155Id;
-
+        // bool _success = false;
+        // if (_type == TOP) {
+        //     _tokenInfo[tokenId].top = erc1155Id;
+        //     _success = true;
+        // }
+        // if (_type == BOTTOM) {
+        //     _tokenInfo[tokenId].bottom = erc1155Id;
+        //     _success = true;
+        // }
         return true;
     }
 

@@ -27,11 +27,11 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
     string public name;
     string public symbol;
     /**
-       1 => hat
-       2 => top
-       3 => bottom
-       4 => shoes
-       ...
+       0 === hair / 1 === clothing / 2 === eyes / 3 === mouth
+       4 === offHand / 5 === eyeWear / 6 === skin / 7 === background
+       8 === additionalItem1 / 9 === additionalItem2 / 10 === additionalItem3 / 11 === additionalItem4
+       12 === additionalItem5 / 13 === additionalItem6 / 14 === additionalItem7 / 15 === additionalItem8
+       16 === additionalItem9 / 17 === additionalItem10 /
      */
     //     token id => token type
     mapping(uint256 => uint256) public clothesTypes;
@@ -79,6 +79,11 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         itemHandler = _itemHandler;
     }
 
+    /**
+     * @dev 신상 옷을 등록하는 함수인 createNewClothes를 호출하기 위한 admin role을
+     *      설정하는 함수입니다
+     */
+
     function setAdmin(address _admin) external onlyOwner {
         admin = _admin;
     }
@@ -99,6 +104,12 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         require(exists(_id), "ERC1155 token does not exist");
         _mint(_to, _id, 1, "");
     }
+
+    /**
+     * @dev 옷을 탈의하는 경우, 해당 옷을 민팅하는 함수입니다
+     * @param erc1155Id 옷의 id
+     * @param _to 옷 소유자 지갑주소
+     */
 
     function mintERC1155(uint256 erc1155Id, address _to)
         public
@@ -122,6 +133,12 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         );
         _burn(msg.sender, _id, _amount);
     }
+
+    /**
+     * @dev 옷을 착용하는 경우, 해당 옷을 소각하는 함수입니다.
+     * @param erc1155Id 옷의 id
+     * @param _to 옷 소유자 지갑주소
+     */
 
     function burnERC1155(uint256 erc1155Id, address _to)
         public
@@ -148,6 +165,28 @@ contract WEARABLE1155 is ERC1155Supply, Ownable, ReentrancyGuard {
         }
         _burnBatch(msg.sender, _ids, _amounts);
     }
+
+    /**
+
+        * @dev 새로운 옷을 등록하는 함수입니다
+
+        * @param _type the type of the token
+          0 === hair / 1 === clothing / 2 === eyes / 3 === mouth
+          4 === offHand / 5 === eyeWear / 6 === skin / 7 === background
+          8 === additionalItem1 / 9 === additionalItem2 / 10 === additionalItem3 / 11 === additionalItem4
+          12 === additionalItem5 / 13 === additionalItem6 / 14 === additionalItem7 / 15 === additionalItem8
+          16 === additionalItem9 / 17 === additionalItem10 /
+
+        * @param _tokenSupply 등록할 옷의 총량
+
+        * @param _uri 등록할 옷의 메타데이터 주소(aws endpoint)
+
+        ex. 예를들어 나이키 상의를 100벌 추가하고 싶은 경우
+        _type = 1
+        _tokenSupply = 100
+        _uri = "https://s3.ap-northeast-2.amazonaws.com/eden.nft/eden-item-metadata/eden-item-metadata-1.json" 
+
+     */
 
     function createNewClothes(
         uint256 _type,

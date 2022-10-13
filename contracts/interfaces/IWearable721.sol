@@ -19,24 +19,45 @@ interface IWEARABLE721 is IERC721 {
      */
 
     struct TokenInfo {
-        uint256 hair;
-        uint256 clothing;
-        uint256 eyes;
-        uint256 mouth;
-        uint256 offHand;
-        uint256 eyeWear;
-        uint256 skin;
-        uint256 background;
-        uint256 additionalItem1;
-        uint256 additionalItem2;
-        uint256 additionalItem3;
-        uint256 additionalItem4;
-        uint256 additionalItem5;
-        uint256 additionalItem6;
-        uint256 additionalItem7;
-        uint256 additionalItem8;
-        uint256 additionalItem9;
-        uint256 additionalItem10;
+        uint256 hair; // 0
+        uint256 clothing; // 1
+        uint256 eyes; // 2
+        uint256 mouth; // 3
+        uint256 offHand; // 4
+        uint256 eyeWear; // 5
+        uint256 skin; // 6
+        uint256 background; // 7
+        uint256 additionalItem1; // 8
+        uint256 additionalItem2; // 9
+        uint256 additionalItem3; // 10
+        uint256 additionalItem4; // 11
+        uint256 additionalItem5; // 12
+        uint256 additionalItem6; // 13
+        uint256 additionalItem7; // 14
+        uint256 additionalItem8; // 15
+        uint256 additionalItem9; // 16
+        uint256 additionalItem10; // 17
+    }
+
+    enum TokenInfoEnum {
+        hair,
+        clothing,
+        eyes,
+        mouth,
+        offHand,
+        eyeWear,
+        skin,
+        background,
+        additionalItem1,
+        additionalItem2,
+        additionalItem3,
+        additionalItem4,
+        additionalItem5,
+        additionalItem6,
+        additionalItem7,
+        additionalItem8,
+        additionalItem9,
+        additionalItem10
     }
 
     /// @notice event emitted when a user has burned a ERC1155 nft

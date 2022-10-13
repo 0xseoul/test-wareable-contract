@@ -34,25 +34,6 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     // uint256 constant TOP = 0;
     // uint256 constant BOTTOM = 1;
 
-    uint256 constant hair = 0;
-    uint256 constant clothing = 1;
-    uint256 constant eyes = 2;
-    uint256 constant mouth = 3;
-    uint256 constant offHand = 4;
-    uint256 constant eyeWear = 5;
-    uint256 constant skin = 6;
-    uint256 constant background = 7;
-    uint256 constant additionalItem1 = 8;
-    uint256 constant additionalItem2 = 9;
-    uint256 constant additionalItem3 = 10;
-    uint256 constant additionalItem4 = 11;
-    uint256 constant additionalItem5 = 12;
-    uint256 constant additionalItem6 = 13;
-    uint256 constant additionalItem7 = 14;
-    uint256 constant additionalItem8 = 15;
-    uint256 constant additionalItem9 = 16;
-    uint256 constant additionalItem10 = 17;
-
     bytes32 public root;
 
     uint256 public maxMintAmountPerTx = 3;
@@ -70,8 +51,8 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     bool public presaleM = false;
 
     mapping(address => uint256) public _presaleClaimed;
-    mapping(uint256 => mapping(uint256 => uint256)) public _tokenInfo;
-    // mapping(uint256 => IWEARABLE721.TokenInfo) public _tokenInfo;
+    mapping(uint256 => IWEARABLE721.TokenInfo) public _tokenInfo;
+    mapping(uint256 => mapping(uint256 => uint256)) public _tokenInfoMap;
 
     uint256 _price = 0; // 0.0 ETH
     // uint256 _price = 10**16; // 0.01 ETH
@@ -149,29 +130,15 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     function getTokenInfo(uint256 _tokenId)
         external
         view
-        returns (IWEARABLE721.TokenInfo memory)
+        returns (uint256[17] memory)
     {
-        return
-            IWEARABLE721.TokenInfo(
-                _tokenInfo[_tokenId][hair],
-                _tokenInfo[_tokenId][clothing],
-                _tokenInfo[_tokenId][eyes],
-                _tokenInfo[_tokenId][mouth],
-                _tokenInfo[_tokenId][offHand],
-                _tokenInfo[_tokenId][eyeWear],
-                _tokenInfo[_tokenId][skin],
-                _tokenInfo[_tokenId][background],
-                _tokenInfo[_tokenId][additionalItem1],
-                _tokenInfo[_tokenId][additionalItem2],
-                _tokenInfo[_tokenId][additionalItem3],
-                _tokenInfo[_tokenId][additionalItem4],
-                _tokenInfo[_tokenId][additionalItem5],
-                _tokenInfo[_tokenId][additionalItem6],
-                _tokenInfo[_tokenId][additionalItem7],
-                _tokenInfo[_tokenId][additionalItem8],
-                _tokenInfo[_tokenId][additionalItem9],
-                _tokenInfo[_tokenId][additionalItem10]
-            );
+        // IWEARABLE721.TokenInfo memory info =
+        uint256[17] memory info;
+        for (uint256 i = 0; i < 17; i++) {
+            info[i] = _tokenInfoMap[_tokenId][i];
+        }
+
+        return info;
     }
 
     /**
@@ -196,24 +163,11 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
             _exists(tokenId),
             "0xWEARABLE721: Token does not exist, cannot dress down"
         );
-
-        require(
-            _tokenInfo[tokenId][_type] != 0,
-            "0xWEARABLE721: Token is already naked, cannot dress down"
-        );
-
-        require(
-            _type >= 0 && _type <= 17,
-            "0xWEARABLE721: Invalid type, cannot dress down"
-        );
-
-        _tokenInfo[tokenId][_type] = 0;
-
-        return true;
+        _tokenInfoMap[tokenId][_type] = 0;
+        return false;
     }
 
-    /**     
-            함수 dressUp
+    /**
             @dev 옷을 착용하는 함수입니다.
             옷을 착용 하는 경우, 해당 아이디를 mapping에서 찾아서, 해당 의류의 아이디를 넣습니다.
           * @param _type 의류 종류
@@ -234,12 +188,7 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
     ) external onlyItemHandler nonReentrant returns (bool success) {
         // require(_type == TOP || _type == BOTTOM, "0xWEARABLE721: Invalid type");
         require(_type >= 0 && _type <= 17, "0xWEARABLE721: Invalid type");
-        require(
-            _exists(tokenId),
-            "0xWEARABLE721: Token does not exist, cannot dress up"
-        );
-        _tokenInfo[tokenId][_type] = erc1155Id;
-
+        _tokenInfoMap[tokenId][_type] = erc1155Id;
         return true;
     }
 
@@ -307,8 +256,6 @@ contract WEARABLE721 is ERC721A, Ownable, ReentrancyGuard {
             _presaleClaimed[msg.sender] + _amount <= presaleAmountLimit,
             "0xWEARABLE721: You can't mint so much tokens"
         );
-
-        // uint256 current = _tokenIds.current();
 
         require(
             _totalSupply + _amount <= maxSupply,
